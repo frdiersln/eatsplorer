@@ -1,12 +1,17 @@
 <script setup>
-import { ref } from 'vue'
+import { ref, computed } from 'vue'
 import { ingredients } from "../../stores/IngredientsStore.js"
 import axios from 'axios';
 
 
-let selectedIngredients = ref([])
-let visibleIngredients = ref([])
-let loading = ref(false)
+var selectedIngredients = ref([])
+var visibleIngredients = ref([])
+var loading = ref(false)
+const hasSelectedIngredients = computed(() => {
+  return selectedIngredients.value.length > 0;
+})
+
+
 
 const search = query => { //search with loading
   if (query !== '') {
@@ -42,12 +47,16 @@ function searchRecipes() {
 </script>
 
 <template>
-  <el-select
+<div class="container">
+  <div class="logoWrapper">
+    <img src="@/assets/logo.svg" alt="logo" />
+  </div>
+  <div class="searchBarWrapper">
+    <el-select
     v-model="selectedIngredients"
     multiple
     filterable
     placeholder="Select Ingredients That You Have"
-    style="width: 66%"
     remote
     :remote-method="search"
     :loading="loading"
@@ -59,8 +68,36 @@ function searchRecipes() {
       :value="ingredient.value"
     />
   </el-select>
-
-  <el-button type="primary" @click="searchRecipes()">
+  <el-button
+    type="outline-primary"
+    @click="searchRecipes()"
+    :disabled="!hasSelectedIngredients">
     Search
   </el-button>
+  </div>
+</div>
 </template>
+
+<style lang="scss">
+.container{
+  display: flex;
+  flex: 1;
+  justify-content: center;
+  align-items: center;
+  height: 100vh;
+  min-width: 766px;
+  .searchBarWrapper {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-width: 341px;
+    margin-left: -66px;
+    .el-button {
+      position: relative;
+      right: 4px;
+      border-radius: 0px 4px 4px 0px;
+    }
+  }  
+}
+
+</style>
