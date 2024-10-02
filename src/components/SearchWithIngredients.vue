@@ -11,7 +11,10 @@ const hasSelectedIngredients = computed(() => {
   return selectedIngredients.value.length > 0;
 })
 
-
+function searchIngredientsPhase(){
+  console.log('searchIngredientsPhase')
+  document.querySelector('.container').classList.add('container_searchPhase')
+}
 
 const search = query => { //search with loading
   if (query !== '') {
@@ -33,7 +36,7 @@ function searchRecipes() {
   }
   console.log(selectedIngredientLabels)
   // Call API to search recipes with selected ingredients
-  let apiKey = process.env.VUE_APP_SPOONACULAR_API_KEY;
+  let apiKey = process.env.SPOONACULAR_API_KEY;
   let selectedIngredientLabelsString = selectedIngredientLabels.join(',')
 
   axios.get('https://api.spoonacular.com/recipes/findByIngredients?ingredients=' + selectedIngredientLabelsString + '&number=2&apiKey=' + apiKey)
@@ -60,6 +63,7 @@ function searchRecipes() {
     remote
     :remote-method="search"
     :loading="loading"
+    @click="searchIngredientsPhase()"
   >
     <el-option
       v-for="ingredient in visibleIngredients"
@@ -96,8 +100,18 @@ function searchRecipes() {
       position: relative;
       right: 4px;
       border-radius: 0px 4px 4px 0px;
+      height: 100%;
     }
   }  
 }
 
+
+.container_searchPhase{
+  flex-direction: column-reverse;
+  justify-content: flex-end;
+  .searchBarWrapper {
+    width: 66%;
+    margin: 89px 0;
+  }
+}
 </style>
