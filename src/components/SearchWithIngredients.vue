@@ -36,7 +36,7 @@ function searchRecipes() {
   }
   console.log(selectedIngredientLabels)
   // Call API to search recipes with selected ingredients
-  let apiKey = process.env.SPOONACULAR_API_KEY;
+  let apiKey = process.env.VUE_APP_SPOONACULAR_API_KEY; // MAKE SURE YOU HAVE spoonacular API KEY IN YOUR .env(create it in root folder) FILE
   let selectedIngredientLabelsString = selectedIngredientLabels.join(',')
 
   axios.get('https://api.spoonacular.com/recipes/findByIngredients?ingredients=' + selectedIngredientLabelsString + '&number=2&apiKey=' + apiKey)
