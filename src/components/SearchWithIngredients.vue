@@ -1,15 +1,20 @@
+<!-- eslint-disable no-unused-vars -->
 <script setup>
 import { ref, computed } from 'vue'
 import { ingredients } from "../../stores/IngredientsStore.js"
 import axios from 'axios';
+import ResultCard from './resultCard.vue'
 
 
 var selectedIngredients = ref([])
 var visibleIngredients = ref([])
 var loading = ref(false)
+var Resultsloading = ref(false)
 const hasSelectedIngredients = computed(() => {
   return selectedIngredients.value.length > 0;
 })
+var results = ref([])
+
 
 function searchIngredientsPhase(){
   console.log('searchIngredientsPhase')
@@ -29,6 +34,8 @@ const search = query => { //search with loading
 }
 
 function searchRecipes() {
+  Resultsloading.value = true
+  results.value = [] // Clear previous results
   // Get selected ingredient labels from selected ingredient values
   var selectedIngredientLabels = [];
   for (let ingredientValue of selectedIngredients.value) {
@@ -41,10 +48,21 @@ function searchRecipes() {
 
   axios.get('https://api.spoonacular.com/recipes/findByIngredients?ingredients=' + selectedIngredientLabelsString + '&number=2&apiKey=' + apiKey)
     .then(response => {
-      console.log(response.data)
+      for (let recipe of response.data) {
+        // Create and push to results a result card for each recipe
+        results.value.push({
+          image: recipe.image,
+          title: recipe.title,
+          likes: recipe.likes,
+          missedIngredientsCount: recipe.missedIngredients.length,
+          unusedIngredientsCount: recipe.unusedIngredients.length
+        })
+        Resultsloading.value = false
+      }
     })
     .catch(error => {
       console.log(error)
+      Resultsloading.value = false
     })
 }
 </script>
@@ -80,6 +98,20 @@ function searchRecipes() {
   </el-button>
   </div>
 </div>
+<div class="resultWrapper">
+  <iframe v-if="Resultsloading" class="loading" src="https://lottie.host/embed/dba9ec49-798b-406b-9f4c-39d0dcc56224/dt6MSPB6ti.json"></iframe>
+  <ResultCard
+    v-for="result in results"
+    :key="result.title"
+    :image="result.image"
+    :title="result.title"
+    :likes="result.likes"
+    :missedIngredientsCount="result.missedIngredientsCount"
+    :unusedIngredientsCount="result.unusedIngredientsCount"
+  />
+</div>
+
+
 </template>
 
 <style lang="scss">
@@ -105,13 +137,29 @@ function searchRecipes() {
   }  
 }
 
-
 .container_searchPhase{
-  flex-direction: column-reverse;
-  justify-content: flex-end;
+  height: fit-content;
+  .logoWrapper {
+    max-height: 66px;
+    margin-right: 22px;
+    img{
+      max-height: 66px;
+    }
+  }
   .searchBarWrapper {
     width: 66%;
     margin: 89px 0;
+  } 
+}
+
+.resultWrapper{
+  display: flex;
+  flex-wrap: wrap;
+  gap: 2rem;
+  padding: 1rem 16rem;
+  .loading{
+    border: none;
+    margin: 0 auto;
   }
 }
 </style>
