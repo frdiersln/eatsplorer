@@ -46,7 +46,7 @@ function searchRecipes() {
   let apiKey = process.env.VUE_APP_SPOONACULAR_API_KEY; // MAKE SURE YOU HAVE spoonacular API KEY IN YOUR .env(create it in root folder) FILE
   let selectedIngredientLabelsString = selectedIngredientLabels.join(',')
 
-  axios.get('https://api.spoonacular.com/recipes/findByIngredients?ingredients=' + selectedIngredientLabelsString + '&number=2&apiKey=' + apiKey)
+  axios.get('https://api.spoonacular.com/recipes/findByIngredients?ingredients=' + selectedIngredientLabelsString + '&apiKey=' + apiKey)
     .then(response => {
       for (let recipe of response.data) {
         // Create and push to results a result card for each recipe
@@ -154,6 +154,7 @@ function searchRecipes() {
 
 .resultWrapper{
   display: flex;
+  justify-content: space-evenly;
   flex-wrap: wrap;
   gap: 2rem;
   padding: 1rem 16rem;
