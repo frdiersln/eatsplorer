@@ -48,6 +48,15 @@ export default {
     width: 22rem;
     background-color: transparent;
     box-shadow: 0 0 4px rgba(0, 0, 0, 0.1);
+    cursor: pointer;
+}
+
+.result-card:hover {
+    box-shadow: 0 0 14px rgba(0, 0, 0, 0.26);
+    transform: scale(1.05);
+    transform: rotate(2deg);
+    transition: transform 0.22s ease-in-out;
+    
 }
 
 .imgWrapper {

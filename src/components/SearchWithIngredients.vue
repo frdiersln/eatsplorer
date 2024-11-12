@@ -4,8 +4,10 @@ import { ref, computed } from 'vue'
 import { ingredients } from "../../stores/IngredientsStore.js"
 import axios from 'axios';
 import ResultCard from './resultCard.vue'
+import recipePage from './recipePage.vue'
 
-
+// Call API to search recipes with selected ingredients
+const apiKey = process.env.VUE_APP_SPOONACULAR_API_KEY; // MAKE SURE YOU HAVE spoonacular API KEY IN YOUR .env(create it in root folder) FILE
 var selectedIngredients = ref([])
 var visibleIngredients = ref([])
 var loading = ref(false)
@@ -42,8 +44,6 @@ function searchRecipes() {
     selectedIngredientLabels.push(ingredients.filter(item => item.value === ingredientValue)[0].label)
   }
   console.log(selectedIngredientLabels)
-  // Call API to search recipes with selected ingredients
-  let apiKey = process.env.VUE_APP_SPOONACULAR_API_KEY; // MAKE SURE YOU HAVE spoonacular API KEY IN YOUR .env(create it in root folder) FILE
   let selectedIngredientLabelsString = selectedIngredientLabels.join(',')
 
   axios.get('https://api.spoonacular.com/recipes/findByIngredients?ingredients=' + selectedIngredientLabelsString + '&apiKey=' + apiKey)
@@ -51,6 +51,7 @@ function searchRecipes() {
       for (let recipe of response.data) {
         // Create and push to results a result card for each recipe
         results.value.push({
+          id: recipe.id,
           image: recipe.image,
           title: recipe.title,
           likes: recipe.likes,
@@ -63,6 +64,39 @@ function searchRecipes() {
     .catch(error => {
       console.log(error)
       Resultsloading.value = false
+    })
+}
+
+function showRecipeDetails(recipeId) {
+  console.log('showRecipeDetails')
+  // Call API to get recipe details
+  axios.get('https://api.spoonacular.com/recipes/' + recipeId + '/information?includeNutrition=false&apiKey=' + apiKey)
+    .then(response => {
+      var recipeData = {
+        title: response.data.title,
+        image: response.data.image,
+        summary: response.data.summary,
+        servings: response.data.servings,
+        readyInMinutes: response.data.readyInMinutes,
+        healthScore: response.data.healthScore,
+        sourceName: response.data.sourceName,
+        sourceUrl: response.data.sourceUrl
+      }
+      let recipePage = document.getElementById('recipePage')
+      recipePage.querySelector('#title').textContent = recipeData.title
+      recipePage.querySelector('#image').src = recipeData.image
+      recipePage.querySelector('#image').alt = recipeData.title
+      recipePage.querySelector('#summary').innerHTML = recipeData.summary
+      recipePage.querySelector('#servings').textContent = recipeData.servings
+      recipePage.querySelector('#readyIn').textContent = recipeData.readyInMinutes + ' minutes'
+      recipePage.querySelector('#healthScore').textContent = recipeData.healthScore
+      recipePage.querySelector('#source').textContent = recipeData.sourceName
+      recipePage.querySelector('#source').href = recipeData.sourceUrl
+      recipePage.style.display = 'block'
+      document.querySelector('.backDrop').style.display = 'block'
+    })
+    .catch(error => {
+      console.log(error)
     })
 }
 </script>
@@ -101,6 +135,7 @@ function searchRecipes() {
 <div class="resultWrapper">
   <iframe v-if="Resultsloading" class="loading" src="https://lottie.host/embed/dba9ec49-798b-406b-9f4c-39d0dcc56224/dt6MSPB6ti.json"></iframe>
   <ResultCard
+    @click="showRecipeDetails(result.id)"
     v-for="result in results"
     :key="result.title"
     :image="result.image"
@@ -111,7 +146,7 @@ function searchRecipes() {
   />
 </div>
 
-
+<recipePage/>
 </template>
 
 <style lang="scss">
